@@ -1,2 +1,3 @@
 generate:
-	deno bundle ./src/extract.ts ogp.js	
+	# TODO: use deno_emit
+	deno bundle ./packages/denolib/extract.ts src/ogp.js	
