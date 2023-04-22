@@ -3,24 +3,11 @@
     "name": "Copy as any",
     "version": "0.0.0",
     "description": "copy ogp info to clipboard as any style",
-    "icons": {
-        "16": "images/icon-16.png",
-        "32": "images/icon-32.png",
-        "48": "images/icon-48.png",
-        "128": "images/icon-128.png"
-    },
     "background": {
         "service_worker": "background.js",
         "type": "module"
     },
-    "action": {
-        "default_icon": {
-            "16": "images/icon-16.png",
-            "32": "images/icon-32.png",
-            "48": "images/icon-48.png",
-            "128": "images/icon-128.png"
-        }
-    },
+    "action": {},
     "permissions": [
         "scripting",
         "activeTab",
