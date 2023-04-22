@@ -10,23 +10,27 @@ chrome.runtime.onInstalled.addListener(() => {
 chrome.action.onClicked.addListener(async (tab) => {
     const tabId = tab.id;
     console.log("----------------------------------------");
-    console.log(`current tab: %o ${tab.id}`, tab);
+    // console.log(`current tab: %o ${tab.id}`, tab);
     try {
         const results = await chrome.scripting.executeScript({
             target: { tabId: tabId },
             func: collectOGP
         })
+
         for (const result of results) {
             const data = result.result;
             console.log(`data: %o`, data);
             if (!data) {
                 continue
             }
-            return addToClipboard(JSON.stringify(data, null, "\t"));
+            await addToClipboard(JSON.stringify(data, null, "\t"));
+            break
         }
+        await flashBadge("success")
         console.log("----------------------------------------");
     } catch (err) {
         console.log(`hmm: ${err}`);
+        await flashBadge("fail");
     }
 });
 
@@ -53,9 +57,7 @@ function collectOGP() {
         return data;
     }
 
-    const data = extractPageInfo(document);
-    // console.log("ogp: %o", data);
-    return data
+    return extractPageInfo(document);
 }
 
 // see: https://github.com/GoogleChrome/chrome-extensions-samples/blob/main/functional-samples/cookbook.offscreen-clipboard-write/background.js
@@ -71,12 +73,11 @@ async function addToClipboard(value) {
 
     // Now that we have an offscreen document, we can dispatch the
     // message.
-    const got = await chrome.runtime.sendMessage({
+    chrome.runtime.sendMessage({
         type: 'copy-data-to-clipboard',
         target: 'offscreen-doc',
         data: value
     });
-    console.log("!! %o", got);
 }
 
 async function hasOffscreenDocument(path) {
@@ -102,43 +103,43 @@ async function hasOffscreenDocument(path) {
 
 // ----------------------------------------
 // see: https://github.com/yorkxin/copy-as-markdown
-// const COLOR_GREEN = '#738a05';
-// const COLOR_RED = '#d11b24';
-// const COLOR_OPAQUE = [0, 0, 0, 255];
+const COLOR_GREEN = '#738a05';
+const COLOR_RED = '#d11b24';
+const COLOR_OPAQUE = [0, 0, 0, 255];
 
-// const TEXT_OK = '✓';
-// const TEXT_ERROR = '×';
-// const TEXT_EMPTY = '';
+const TEXT_OK = '✓';
+const TEXT_ERROR = '×';
+const TEXT_EMPTY = '';
 
-// const FLASH_BADGE_TIMEOUT = 3000; // ms
+const FLASH_BADGE_TIMEOUT = 3000; // ms
 
-// async function flashBadge(type) {
-//   const entrypoint = chrome.action /* MV3 */ || chrome.browserAction; /* Firefox MV2 */
+async function flashBadge(type) {
+  const entrypoint = chrome.action /* MV3 */ || chrome.browserAction; /* Firefox MV2 */
 
-//   switch (type) {
-//     case 'success':
-//       await entrypoint.setBadgeText({ text: TEXT_OK });
-//       await entrypoint.setBadgeBackgroundColor({ color: COLOR_GREEN });
-//       break;
-//     case 'fail':
-//       await entrypoint.setBadgeText({ text: TEXT_ERROR });
-//       await entrypoint.setBadgeBackgroundColor({ color: COLOR_RED });
-//       break;
-//     default:
-//       return; // don't know what it is. quit.
-//   }
+  switch (type) {
+    case 'success':
+      await entrypoint.setBadgeText({ text: TEXT_OK });
+      await entrypoint.setBadgeBackgroundColor({ color: COLOR_GREEN });
+      break;
+    case 'fail':
+      await entrypoint.setBadgeText({ text: TEXT_ERROR });
+      await entrypoint.setBadgeBackgroundColor({ color: COLOR_RED });
+      break;
+    default:
+      return; // don't know what it is. quit.
+  }
 
-//   chrome.alarms.create('clear', { when: Date.now() + FLASH_BADGE_TIMEOUT });
-// }
+  chrome.alarms.create('clear', { when: Date.now() + FLASH_BADGE_TIMEOUT });
+}
 
-// chrome.alarms.onAlarm.addListener((alarm) => {
-//     const entrypoint = chrome.action /* MV3 */ || chrome.browserAction; /* Firefox MV2 */
+chrome.alarms.onAlarm.addListener((alarm) => {
+    const entrypoint = chrome.action /* MV3 */ || chrome.browserAction; /* Firefox MV2 */
   
-//     if (alarm.name === 'clear') {
-//       Promise.all([
-//         entrypoint.setBadgeText({ text: TEXT_EMPTY }),
-//         entrypoint.setBadgeBackgroundColor({ color: COLOR_OPAQUE }),
-//       ])
-//         .then(() => { /* NOP */ });
-//     }
-//   });
+    if (alarm.name === 'clear') {
+      Promise.all([
+        entrypoint.setBadgeText({ text: TEXT_EMPTY }),
+        entrypoint.setBadgeBackgroundColor({ color: COLOR_OPAQUE }),
+      ])
+        .then(() => { /* NOP */ });
+    }
+  });

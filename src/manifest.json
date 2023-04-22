@@ -25,6 +25,8 @@
         "scripting",
         "activeTab",
         "tabs",
-        "offscreen"
+        "offscreen",
+        "alarms",
+        "clipboardWrite"
     ]
 }
