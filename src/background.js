@@ -1,8 +1,8 @@
 import { flashBadge } from "./lib/badge.js"
+import { addToClipboard } from "./lib/clipboard.js"; // work-around
 
-const offscreenDocumentPath = "offscreen.html";
 
-
+// for debug
 chrome.runtime.onInstalled.addListener(() => {
     chrome.action.setBadgeText({
         text: "CaA",
@@ -25,7 +25,10 @@ chrome.action.onClicked.addListener(async (tab) => {
             if (!data) {
                 continue
             }
-            await addToClipboard(JSON.stringify(data, null, "\t"));
+
+            const offscreenDocumentPath = "compat/offscreen.html";
+            const text = JSON.stringify(data, null, "\t");            
+            await addToClipboard(offscreenDocumentPath, text); // TODO: using addToClipboardV2()
             break
         }
         await flashBadge("success")
@@ -38,6 +41,7 @@ chrome.action.onClicked.addListener(async (tab) => {
 
 
 function collectOGP() {
+    // copy from ./lib/ogp.js, because es-module's import is not supported in content scripts
     function extractPageInfo(doc) {
         const data = {};
         data["title"] = doc.querySelector("head > title")?.textContent.trim() || "";
@@ -62,38 +66,6 @@ function collectOGP() {
     return extractPageInfo(document);
 }
 
-// see: https://github.com/GoogleChrome/chrome-extensions-samples/blob/main/functional-samples/cookbook.offscreen-clipboard-write/background.js
-// see: https://developer.chrome.com/docs/extensions/reference/offscreen/
-async function addToClipboard(value) {
-    if (!(await hasOffscreenDocument(offscreenDocumentPath))) {
-        await chrome.offscreen.createDocument({
-            url: offscreenDocumentPath,
-            reasons: ["CLIPBOARD"],
-            justification: 'Write text to the clipboard.'
-        });
-    }
-
-    // Now that we have an offscreen document, we can dispatch the
-    // message.
-    chrome.runtime.sendMessage({
-        type: 'copy-data-to-clipboard',
-        target: 'offscreen-doc',
-        data: value
-    });
-}
-
-async function hasOffscreenDocument(path) {
-    // Check all windows controlled by the service worker to see if one 
-    // of them is the offscreen document with the given path
-    const offscreenUrl = chrome.runtime.getURL(path);
-    const matchedClients = await clients.matchAll();
-    for (const client of matchedClients) {
-        if (client.url === offscreenUrl) {
-            return true;
-        }
-    }
-    return false;
-}
 
 // // see: https://github.com/GoogleChrome/chrome-extensions-samples/blob/main/functional-samples/cookbook.offscreen-clipboard-write/background.js
 // // Solution 2 – Once extension service workers can use the Clipboard API,
