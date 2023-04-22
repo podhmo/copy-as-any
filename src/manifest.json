@@ -1,0 +1,19 @@
+{
+    "manifest_version": 3,
+    "name": "Copy as any",
+    "version": "0.0.0",
+    "description": "copy ogp info to clipboard as any style",
+    "background": {
+        "service_worker": "background.js",
+        "type": "module"
+    },
+    "action": {},
+    "permissions": [
+        "scripting",
+        "activeTab",
+        "tabs",
+        "offscreen",
+        "alarms",
+        "clipboardWrite"
+    ]
+}
