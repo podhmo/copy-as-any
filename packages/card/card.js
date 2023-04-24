@@ -13,7 +13,10 @@ export class Card extends HTMLElement {
         let title = ""
         if (this.hasAttribute("title")) {
             title = this.getAttribute("title")
+        } else if (this.hasAttribute("og:title")) {
+            title = this.getAttribute("og:title")
         }
+
 
         let url = ""
         if (this.hasAttribute("href")) {
