@@ -27,7 +27,8 @@ chrome.action.onClicked.addListener(async (tab) => {
             }
 
             const offscreenDocumentPath = "compat/offscreen.html";
-            const text = JSON.stringify(data, null, "\t");            
+            // const text = JSON.stringify(data, null, "\t");            
+            const text = `<my-card og:title="${data['title'] || data['og:title']}" og:url="${data['href'] || data['og:url']}" og:image="${data['img'] || data['og:image']}"></my-card>`
             await addToClipboard(offscreenDocumentPath, text); // TODO: using addToClipboardV2()
             break
         }
