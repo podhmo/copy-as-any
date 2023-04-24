@@ -6,6 +6,8 @@ export class Card extends HTMLElement {
         // let img = "./images/notfound.jpg"; // default
         if (this.hasAttribute("img")) {
             img = this.getAttribute("img")
+        } else if (this.hasAttribute("og:image")){
+            img = this.getAttribute("og:image")
         }
 
         let title = ""
