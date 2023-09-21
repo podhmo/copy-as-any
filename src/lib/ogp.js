@@ -5,20 +5,31 @@
 function extractPageInfo(doc) {
     const data = {};
     data["title"] = doc.querySelector("head > title")?.textContent.trim() || "";
-    const metaElements = Array.from(doc.querySelectorAll("head > meta"));
-    for (const current of metaElements){
-        if (!current.hasAttribute("property")) {
-            continue;
+    if (!data["title"]) {
+        data["title"] = doc.querySelector("body > title")?.textContent.trim() || "";
+    }
+    for (const expr of [
+        "head > meta",
+        "body > meta"
+    ]){
+        const metaElements = Array.from(doc.querySelectorAll(expr));
+        for (const current of metaElements){
+            if (!current.hasAttribute("property")) {
+                continue;
+            }
+            const property = current.getAttribute("property")?.trim();
+            if (!property) {
+                continue;
+            }
+            const content = current.getAttribute("content");
+            if (!content) {
+                continue;
+            }
+            data[property] = content.trim();
         }
-        const property = current.getAttribute("property")?.trim();
-        if (!property) {
-            continue;
+        if (data["og:url"]) {
+            break;
         }
-        const content = current.getAttribute("content");
-        if (!content) {
-            continue;
-        }
-        data[property] = content.trim();
     }
     return data;
 }
