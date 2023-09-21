@@ -7,22 +7,30 @@ export function extractPageInfo(doc: HTMLDocument): Record<"title" | string, str
 
     // title
     data["title"] = doc.querySelector("head > title")?.textContent.trim() || "";
+    if (!data["title"]){
+        data["title"] = doc.querySelector("body > title")?.textContent.trim() || "";
+    }
 
     // OGP    
-    const metaElements = Array.from(doc.querySelectorAll("head > meta")) as Array<Element>;
-    for (const current of metaElements) {
-        if (!current.hasAttribute("property")) {
-            continue
+    for (const expr of ["head > meta", "body > meta"]) {
+        const metaElements = Array.from(doc.querySelectorAll(expr)) as Array<Element>;
+        for (const current of metaElements) {
+            if (!current.hasAttribute("property")) {
+                continue
+            }
+            const property = current.getAttribute("property")?.trim();
+            if (!property) {
+                continue
+            }
+            const content = current.getAttribute("content");
+            if (!content) {
+                continue
+            }
+            data[property] = content.trim();
         }
-        const property = current.getAttribute("property")?.trim();
-        if (!property) {
-            continue
+        if (data["og:url"]) {
+            break
         }
-        const content = current.getAttribute("content");
-        if (!content) {
-            continue
-        }
-        data[property] = content.trim();
     }
     return data
 }
