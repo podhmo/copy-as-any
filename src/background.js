@@ -1,7 +1,6 @@
 import { flashBadge } from "./lib/badge.js"
 import { addToClipboard } from "./lib/clipboard.js"; // work-around
 
-
 // for debug
 chrome.runtime.onInstalled.addListener(() => {
     chrome.action.setBadgeText({
@@ -19,17 +18,46 @@ chrome.action.onClicked.addListener(async (tab) => {
             func: collectOGP
         })
 
-        for (const result of results) {
-            const data = result.result;
+        for (const r of results) {
+            let data = r.result;
             console.log(`data: %o`, data);
+            const url = data["location.href"];
+            if (url) {
+                // fetch from request
+                const res = await fetch(url, { "headers": { "Content-Type": "text/html", "Accept": "text/html", "User-Agent": "bot" } });
+                if (res.status == 200) {
+                    const text = await res.text();
+                    const fetchedResults = await chrome.scripting.executeScript({
+                        target: { tabId: tabId },
+                        func: collectOGP,
+                        args: [text]
+                    })
+                    for (const r of fetchedResults) {
+                        if (r.result) {
+                            const subdata = r.result;
+                            // console.log(` subdata: %o`, subdata);
+                            data = Object.assign(data, subdata);
+                        }
+                    }
+                }
+            }
             if (!data) {
                 continue
             }
 
-            const offscreenDocumentPath = "compat/offscreen.html";
-            // const text = JSON.stringify(data, null, "\t");            
-            const text = `<my-card og:title="${data['title'] || data['og:title']}" og:url="${data['href'] || data['og:url']}" og:image="${data['img'] || data['og:image']}"></my-card>`
-            await addToClipboard(offscreenDocumentPath, text); // TODO: using addToClipboardV2()
+            // save to clipboard
+            {
+                // {
+                //     const text = JSON.stringify(data, null, "\t");
+                //     console.log(`OK: ${text}`);
+                // }
+                {
+                    const text = `<my-card og:title="${data["title"] || data["og:title"]}" og:url="${data["og:url"] || data["location.href"]}" og:image="${data["img"] || data["og:image"]}"></my-card>`
+                    const offscreenDocumentPath = "compat/offscreen.html";
+                    await addToClipboard(offscreenDocumentPath, text); // TODO: using addToClipboardV2()       
+                }
+            }
+
             break
         }
         await flashBadge("success")
@@ -41,30 +69,49 @@ chrome.action.onClicked.addListener(async (tab) => {
 });
 
 
-function collectOGP() {
-    // copy from ./lib/ogp.js, because es-module's import is not supported in content scripts
+function collectOGP(text) {
+    // copy from ./lib/ogp.js, because es-module"s import is not supported in content scripts
     function extractPageInfo(doc) {
         const data = {};
         data["title"] = doc.querySelector("head > title")?.textContent.trim() || "";
-        const metaElements = Array.from(doc.querySelectorAll("head > meta"));
-        for (const current of metaElements) {
-            if (!current.hasAttribute("property")) {
-                continue;
+        if (!data["title"]) {
+            data["title"] = doc.querySelector("body > title")?.textContent.trim() || "";
+        }
+        for (const expr of [
+            "head > meta",
+            "body > meta"
+        ]) {
+            const metaElements = Array.from(doc.querySelectorAll(expr));
+            for (const current of metaElements) {
+                if (!current.hasAttribute("property")) {
+                    continue;
+                }
+                const property = current.getAttribute("property")?.trim();
+                if (!property) {
+                    continue;
+                }
+                const content = current.getAttribute("content");
+                if (!content) {
+                    continue;
+                }
+                data[property] = content.trim();
             }
-            const property = current.getAttribute("property")?.trim();
-            if (!property) {
-                continue;
+            if (data["og:url"]) {
+                break;
             }
-            const content = current.getAttribute("content");
-            if (!content) {
-                continue;
-            }
-            data[property] = content.trim();
         }
         return data;
     }
 
-    return extractPageInfo(document);
+    let doc = document;
+    if (text) {
+        const p = new DOMParser
+        doc = p.parseFromString(text, "text/html");
+    }
+
+    const data = extractPageInfo(doc);
+    data["location.href"] = location.href;
+    return data;
 }
 
 
