@@ -53,7 +53,7 @@ chrome.action.onClicked.addListener(async (tab) => {
                 // }
                 {
                     const text = `<my-card og:title="${data["title"] || data["og:title"]}" og:url="${data["og:url"] || data["location.href"]}" og:image="${data["img"] || data["og:image"]}"></my-card>`
-                    await addToClipboard(null, text);
+                    await addToClipboard(tabId, text);
                 }
             }
 
