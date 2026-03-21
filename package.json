@@ -1,0 +1,22 @@
+{
+    "name": "copy-as-any",
+    "version": "1.0.0",
+    "description": "browser extension, copy as any (e.g.  OGP card, markdown, JSON)",
+    "main": "index.js",
+    "scripts": {
+        "build": "web-ext build --source-dir ./src --artifacts-dir ./dist"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+ssh://git@github.com/podhmo/copy-as-any.git"
+    },
+    "author": "",
+    "license": "ISC",
+    "bugs": {
+        "url": "https://github.com/podhmo/copy-as-any/issues"
+    },
+    "homepage": "https://github.com/podhmo/copy-as-any#readme",
+    "devDependencies": {
+        "web-ext": "^10.0.0"
+    }
+}
