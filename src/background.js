@@ -47,14 +47,18 @@ chrome.action.onClicked.addListener(async (tab) => {
 
             // save to clipboard
             {
-                // {
-                //     const text = JSON.stringify(data, null, "\t");
-                //     console.log(`OK: ${text}`);
-                // }
-                {
-                    const text = `<my-card og:title="${data["title"] || data["og:title"]}" og:url="${data["og:url"] || data["location.href"]}" og:image="${data["img"] || data["og:image"]}"></my-card>`
-                    await addToClipboard(tabId, text);
+                const { format = "my-card" } = await chrome.storage.sync.get("format");
+                let text;
+                if (format === "markdown") {
+                    const title = data["title"] || data["og:title"] || "";
+                    const url = data["og:url"] || data["location.href"] || "";
+                    text = `[${title}](${url})`;
+                } else if (format === "json") {
+                    text = JSON.stringify(data, null, 2);
+                } else {
+                    text = `<my-card og:title="${data["title"] || data["og:title"]}" og:url="${data["og:url"] || data["location.href"]}" og:image="${data["img"] || data["og:image"]}"></my-card>`;
                 }
+                await addToClipboard(tabId, text);
             }
 
             break

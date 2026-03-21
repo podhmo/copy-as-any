@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>Copy As Any - Settings</title>
+  <style>
+    body { font-family: sans-serif; padding: 16px; min-width: 300px; }
+    h2 { font-size: 1rem; margin-bottom: 12px; }
+    label { display: block; margin-bottom: 8px; cursor: pointer; }
+    button { margin-top: 12px; padding: 6px 16px; cursor: pointer; }
+    #status { margin-top: 8px; color: green; font-size: 0.85rem; }
+  </style>
+</head>
+<body>
+  <h2>Copy As Any - Settings</h2>
+  <label><input type="radio" name="format" value="my-card"> my-card (default)</label>
+  <label><input type="radio" name="format" value="markdown"> Markdown: [title](url)</label>
+  <label><input type="radio" name="format" value="json"> JSON (all fields)</label>
+  <button id="save">Save</button>
+  <div id="status"></div>
+  <script src="options.js"></script>
+</body>
+</html>

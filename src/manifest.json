@@ -1,7 +1,7 @@
 {
     "manifest_version": 3,
     "name": "Copy as any",
-    "version": "0.0.1",
+    "version": "0.0.2",
     "description": "copy ogp info to clipboard as any style",
     "browser_specific_settings": {
         "gecko": {
@@ -19,11 +19,13 @@
         "type": "module"
     },
     "action": {},
+    "options_page": "options.html",
     "permissions": [
         "scripting",
         "activeTab",
         "tabs",
         "alarms",
-        "clipboardWrite"
+        "clipboardWrite",
+        "storage"
     ]
 }
