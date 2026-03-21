@@ -53,8 +53,7 @@ chrome.action.onClicked.addListener(async (tab) => {
                 // }
                 {
                     const text = `<my-card og:title="${data["title"] || data["og:title"]}" og:url="${data["og:url"] || data["location.href"]}" og:image="${data["img"] || data["og:image"]}"></my-card>`
-                    const offscreenDocumentPath = "compat/offscreen.html";
-                    await addToClipboard(offscreenDocumentPath, text); // TODO: using addToClipboardV2()       
+                    await addToClipboard(null, text);
                 }
             }
 
@@ -113,11 +112,3 @@ function collectOGP(text) {
     data["location.href"] = location.href;
     return data;
 }
-
-
-// // see: https://github.com/GoogleChrome/chrome-extensions-samples/blob/main/functional-samples/cookbook.offscreen-clipboard-write/background.js
-// // Solution 2 – Once extension service workers can use the Clipboard API,
-// // replace the offscreen document based implementation with something like this.
-// async function addToClipboardV2(value) {
-//     navigator.clipboard.writeText(value);
-//   }

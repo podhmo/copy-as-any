@@ -4,7 +4,10 @@
     "description": "browser extension, copy as any (e.g.  OGP card, markdown, JSON)",
     "main": "index.js",
     "scripts": {
-        "build": "web-ext build --source-dir ./src --artifacts-dir ./dist"
+        "lint": "web-ext lint --source-dir ./src",
+        "build:firefox": "web-ext build --source-dir ./src --artifacts-dir ./dist --filename {name}-{version}-firefox.xpi --overwrite-dest",
+        "build:chrome": "web-ext build --source-dir ./src --artifacts-dir ./dist --filename {name}-{version}-chrome.xpi --overwrite-dest",
+        "build": "npm run lint && npm run build:firefox && npm run build:chrome"
     },
     "repository": {
         "type": "git",

@@ -3,7 +3,14 @@
     "name": "Copy as any",
     "version": "0.0.1",
     "description": "copy ogp info to clipboard as any style",
+    "browser_specific_settings": {
+        "gecko": {
+            "id": "copy-as-any@podhmo",
+            "strict_min_version": "128.0"
+        }
+    },
     "background": {
+        "scripts": ["background.js"],
         "service_worker": "background.js",
         "type": "module"
     },
@@ -12,7 +19,6 @@
         "scripting",
         "activeTab",
         "tabs",
-        "offscreen",
         "alarms",
         "clipboardWrite"
     ]
