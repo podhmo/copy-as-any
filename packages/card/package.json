@@ -1,6 +1,6 @@
 {
   "name": "@podhmo/card",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "individual card component",
   "main": "index.js",
   "scripts": {
